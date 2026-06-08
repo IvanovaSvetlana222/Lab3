@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Морской тренажёр</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-image: url('../images/5.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            position: relative;
+        }
+        
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            background: linear-gradient(135deg, #f5e7d0, #e1c9a8);
+            padding: 18px 25px;
+            border-radius: 60px;
+            box-shadow: 
+                0 8px 16px rgba(0,0,0,0.1),
+                inset 0 -4px 8px rgba(0,0,0,0.1),
+                inset 0 4px 8px rgba(255,255,255,0.4);
+            text-align: center;
+            font-family: 'Lobster', cursive;
+            font-size: 28px;
+            z-index: 5;
+            border: 1px solid #d4b483;
+        }
+        
+        .header-text {
+            background: linear-gradient(90deg, #ff8a00, #e52e71, #1e90ff, #ff8a00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 8s linear infinite;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            padding: 5px 0;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        .team-label {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f5e7d0, #e1c9a8);
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.1),
+                inset 0 -2px 4px rgba(0,0,0,0.1),
+                inset 0 2px 4px rgba(255,255,255,0.4);
+            font-family: 'Lobster', cursive;
+            font-size: 18px;
+            z-index: 6;
+            border: 1px solid #d4b483;
+            color: #5a4a3a;
+            white-space: nowrap;
+        }
+        
+        .results-wrapper {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: calc(50% + 260px);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .result-container {
+            background: linear-gradient(135deg, #f5e7d0, #e1c9a8);
+            padding: 15px;
+            border-radius: 50px;
+            box-shadow: 
+                0 6px 12px rgba(0,0,0,0.1),
+                inset 0 -4px 8px rgba(0,0,0,0.1),
+                inset 0 4px 8px rgba(255,255,255,0.3);
+            text-align: center;
+            font-size: 20px;
+            display: none;
+            border: 1px solid #d4b483;
+            color: #5a4a3a;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .text-panel {
+            position: absolute;
+            top: 47vh;
+            left: 43vw;
+            transform: translate(-50%, -50%);
+            width: 50vw;
+            max-width: 585px;
+            padding: 30px 40px 20px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 5;
+            display: none;
+        }
+        
+        .buttons-container {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: calc(50% + 180px);
+            display: flex;
+            gap: 20px;
+            z-index: 20;
+            display: none;
+            overflow: visible; 
+        }
+        
+        .action-button {
+            background: linear-gradient(135deg, #2196F3, #1565C0);
+            color: white;
+            width: 150px;
+            height: 50px;
+            border-radius: 25px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 
+                0 5px 15px rgba(0,0,0,0.3),
+                inset 0 -5px 10px rgba(0,0,0,0.2),
+                inset 0 5px 10px rgba(255,255,255,0.4);
+            transition: 
+                transform 0.3s,
+                box-shadow 0.3s;
+            overflow: hidden;
+            position: relative; 
+        }
+        
+        #clearBtn {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+        }
+        
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: skewX(-25deg);
+            transition: left 0.7s;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .action-button:hover::before {
+            left: 100%;
+        }
+        
+        .action-button:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 
+                0 8px 20px rgba(0,0,0,0.4),
+                inset 0 -5px 10px rgba(0,0,0,0.2),
+                inset 0 5px 10px rgba(255,255,255,0.4);
+        }
+        
+        .action-button:active {
+            transform: scale(0.98) translateY(1px);
+            box-shadow: 
+                0 2px 5px rgba(0,0,0,0.2),
+                inset 0 -3px 5px rgba(0,0,0,0.2),
+                inset 0 3px 5px rgba(255,255,255,0.4);
+        }
+        
+        .simulator {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .background {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        .wheel-container {
+            position: absolute;
+            top: 50%;
+            width: 300px;
+            height: 300px;
+            min-width: 300px;
+            min-height: 300px;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .wheel-container.left {
+            left: 5vw;
+        }
+        
+        .wheel-container.right {
+            right: 5vw;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            min-width: 300px;
+            min-height: 300px;
+            animation: rotateWheel 10s linear infinite;
+            user-select: none;
+            position: absolute;
+        }
+        
+        @keyframes rotateWheel {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .wheel-btn {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            min-width: 100px;
+            min-height: 100px;
+            border-radius: 50%;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+            transition: all 0.2s;
+            background: linear-gradient(145deg, #2dd4bf, #0d9488);
+            box-shadow: 
+                5px 5px 15px rgba(0, 0, 0, 0.3),
+                -3px -3px 10px rgba(255, 255, 255, 0.1),
+                inset 3px 3px 5px rgba(255, 255, 255, 0.4),
+                inset -3px -3px 5px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .check-btn {
+            background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+        }
+        
+        .wheel-btn:active {
+            transform: scale(0.95) translateY(2px);
+            box-shadow: 
+                2px 2px 8px rgba(0, 0, 0, 0.2),
+                -1px -1px 5px rgba(255, 255, 255, 0.1),
+                inset 1px 1px 3px rgba(255, 255, 255, 0.3),
+                inset -1px -1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ship {
+            position: absolute;
+            width: 160px;
+            height: auto;
+            bottom: 50vh;
+            left: 69vw;
+            transform: translate(-50%, 0) rotate(-5deg);
+            animation: shipRocking 5s ease-in-out infinite;
+            z-index: 6;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+            min-width: 160px;
+            max-width: 160px;
+        }
+
+        @keyframes shipRocking {
+            0%, 100% { transform: translate(-50%, 0) rotate(-7deg); }
+            50% { transform: translate(-50%, 0) rotate(3deg); }
+        }
+        
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            bottom: 0;
+            z-index: 1;
+        }
+        
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: bubbleRise linear infinite;
+            bottom: 45%;
+            left: 69%;
+            transform: translateX(-50%);
+        }
+        
+        @keyframes bubbleRise {
+            0% { 
+                transform: translateY(0) translateX(-50%);
+                opacity: 0;
+                width: 5px;
+                height: 5px;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { 
+                transform: translateY(-150px) translateX(calc(-50% + 20px));
+                opacity: 0;
+                width: 8px;
+                height: 8px;
+            }
+        }
+        
+        .text-content {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            font-size: 18px;
+            text-align: justify;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Стили для выпадающего списка */
+        .gap-container {
+            display: inline-block;
+            position: relative;
+            width: 24px;
+            height: 24px;
+            margin: 0 1px;
+            vertical-align: middle;
+        }
+        
+        .gap-select {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+            outline: none;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .gap-select:focus {
+            border-color: #2196F3;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.5);
+            transform: scale(1.05);
+        }
+
+        .gap-select.correct {
+            border-color: #4CAF50;
+            color: #2E7D32;
+            background-color: rgba(76, 175, 80, 0.2);
+        }
+
+        .gap-select.incorrect {
+            border-color: #F44336;
+            color: #c62828;
+            background-color: rgba(244, 67, 54, 0.2);
+        }
+
+        .next-container {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            z-index: 30;
+        }
+
+        .rakovina-img {
+            width: 120px;
+            height: auto;
+            min-width: 120px;
+        }
+
+        .next-button {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            width: 80px;
+            height: 40px;
+            min-width: 80px;
+            background: linear-gradient(135deg, #b388ff, #7c4dff);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 
+                0 3px 10px rgba(0,0,0,0.3),
+                inset 0 -3px 6px rgba(0,0,0,0.2),
+                inset 0 3px 6px rgba(255,255,255,0.4);
+            transition: all 0.3s;
+            overflow: hidden;
+            display: none;
+        }
+
+        .next-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: skewX(-25deg);
+            transition: left 0.7s;
+            z-index: 1;
+        }
+
+        .next-button:hover::before {
+            left: 100%;
+        }
+
+        .next-button:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 
+                0 5px 15px rgba(0,0,0,0.4),
+                inset 0 -3px 6px rgba(0,0,0,0.2),
+                inset 0 3px 6px rgba(255,255,255,0.4);
+        }
+
+        .next-button:active {
+            transform: translate(-50%, -50%) scale(0.98);
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.2),
+                inset 0 -2px 4px rgba(0,0,0,0.2),
+                inset 0 2px 4px rgba(255,255,255,0.4);
+        }
+
+        .author-signature {
+            text-align: right;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        /* Адаптация для планшетов */
+        @media (max-width: 1024px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+                min-width: 250px;
+                min-height: 250px;
+            }
+
+            .wheel {
+                min-width: 250px;
+                min-height: 250px;
+            }
+
+            .wheel-btn {
+                width: 80px;
+                height: 80px;
+                min-width: 80px;
+                min-height: 80px;
+                font-size: 14px;
+            }
+
+            .ship {
+                width: 180px;
+                bottom: 40vh;
+            }
+
+            .text-panel {
+                width: 70vw;
+                top: 40vh;
+            }
+
+            .buttons-container {
+                top: calc(50% + 150px);
+            }
+
+            .results-wrapper {
+                top: calc(50% + 220px);
+            }
+        }
+
+        /* Адаптация для небольших планшетов и крупных телефонов */
+        @media (max-width: 768px) {
+            .wheel-container {
+                width: 200px;
+                height: 200px;
+                min-width: 200px;
+                min-height: 200px;
+            }
+
+            .wheel {
+                min-width: 200px;
+                min-height: 200px;
+            }
+
+            .wheel-btn {
+                width: 70px;
+                height: 70px;
+                min-width: 70px;
+                min-height: 70px;
+                font-size: 12px;
+            }
+
+            .ship {
+                width: 160px;
+                bottom: 38vh;
+                left: 75vw;
+            }
+
+            .header {
+                font-size: 18px;
+                width: 90%;
+            }
+
+            .text-panel {
+                width: 85vw;
+                padding: 15px;
+                top: 35vh;
+                left: 50vw;
+            }
+
+            .buttons-container {
+                flex-direction: column;
+                gap: 10px;
+                top: calc(50% + 130px);
+            }
+
+            .action-button {
+                width: 140px;
+            }
+
+            .results-wrapper {
+                top: calc(50% + 200px);
+            }
+
+            .next-button {
+                width: 70px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+
+        /* Адаптация для мобильных телефонов */
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 150px;
+                height: 150px;
+                min-width: 150px;
+                min-height: 150px;
+                top: 40%;
+            }
+
+            .wheel {
+                min-width: 150px;
+                min-height: 150px;
+            }
+
+            .wheel-btn {
+                width: 50px;
+                height: 50px;
+                min-width: 50px;
+                min-height: 50px;
+                font-size: 10px;
+            }
+
+            .wheel-container.left {
+                left: 10vw;
+            }
+
+            .wheel-container.right {
+                right: 10vw;
+            }
+
+            .ship {
+                width: 120px;
+                bottom: 35vh;
+                left: 80vw;
+            }
+
+            .header {
+                font-size: 16px;
+                top: 10px;
+            }
+
+            .team-label {
+                top: -40px;
+                font-size: 14px;
+            }
+
+            .text-panel {
+                width: 90vw;
+                padding: 12px;
+                top: 30vh;
+            }
+
+            .text-content {
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            .buttons-container {
+                top: calc(50% + 120px);
+            }
+
+            .action-button {
+                width: 120px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .results-wrapper {
+                top: calc(50% + 180px);
+            }
+
+            .result-container {
+                min-width: 90%;
+                font-size: 14px;
+            }
+
+            .gap-container {
+                width: 16px;
+                height: 16px;
+            }
+
+            .gap-select {
+                font-size: 14px;
+            }
+
+            .next-button {
+                width: 60px;
+                height: 30px;
+                font-size: 12px;
+            }
+
+            .rakovina-img {
+                width: 100px;
+                min-width: 100px;
+            }
+        }
+
+        /* Вертикальная ориентация на мобильных */
+        @media (max-width: 480px) and (max-height: 600px) {
+            .wheel-container {
+                width: 120px;
+                height: 120px;
+                min-width: 120px;
+                min-height: 120px;
+            }
+
+            .wheel-btn {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                min-height: 40px;
+                font-size: 9px;
+            }
+
+            .ship {
+                width: 100px;
+                bottom: 30vh;
+            }
+
+            .text-panel {
+                top: 25vh;
+                padding: 10px;
+            }
+
+            .buttons-container {
+                top: calc(50% + 100px);
+            }
+
+            .results-wrapper {
+                top: calc(50% + 160px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-text">Правописание безударных гласных в корне слова</div>
+    </div>
+
+    <div class="simulator">
+        <img class="background" src="../images/5.jpg" alt="Морской фон">
+        <div class="bubbles" id="bubbles"></div>
+        <img class="ship" src="../images/korablik_7.png" alt="Кораблик">
+        
+        <!-- Левый штурвал -->
+        <div class="wheel-container left">
+            <div class="team-label">Задание для команды 3</div>
+            <img class="wheel" src="../images/shurval.png" alt="Левый штурвал">
+            <button class="wheel-btn enable-btn" id="enableBtn">Включить</button>
+        </div>
+        
+        <!-- Правый штурвал -->
+        <div class="wheel-container right">
+            <img class="wheel" src="../images/shurval.png" alt="Правый штурвал">
+            <button class="wheel-btn check-btn" id="checkBtn" style="display: none;">Проверить</button>
+        </div>
+        
+        <div class="text-panel" id="textPanel">
+            <div class="text-content" id="textContainer"></div>
+            <div class="author-signature">(По А. Грину)</div>
+        </div>
+
+        <div class="buttons-container" id="buttonsContainer">
+            <button class="action-button" id="gradeBtn">Оценка</button>
+            <button class="action-button" id="clearBtn">Очистить</button>
+        </div>
+
+        <div class="results-wrapper">
+            <div class="result-container" id="gradeResult"></div>
+            <div class="result-container" id="statsResult"></div>
+        </div>
+
+        <div class="next-container">
+            <img class="rakovina-img" src="../images/Rakovina.png" alt="Раковина">
+            <button class="next-button" id="nextBtn">Далее</button>
+        </div>
+    </div>
+
+    <script>
+        // Текст и ответы из PDF
+        const exercise = {
+            text: "За кораблём с алыми парусами, к_саясь лучами воды, подн_малось г_рячее солнце. Ассоль зам_рла; потом резко вск_чила, вспыхнув неуд_ржимыми слезами вд_хновенного потр_сения. Корабль в это время ог_бал небольшой мыс, д_ржась к берегу углом левого борта; музыка л_лась с белой палубы под огнем алого шёлка, музыка р_тмических переливов... В её пр_стоте, л_куя, р_котало волнение... И это соч_тание музыки и красок было восх_тительным... Ассоль бежала к морю, подхваченная неод_лимым ветром события.",
+            answers: ["а", "и", "о", "е", "о", "е", "о", "я", "и", "е", "и", "и", "о", "и", "о", "е", "и", "о"],
+            // Для каждого пропуска указываем возможные варианты букв, которые можно перепутать
+            possibleLetters: [
+                ['а', 'о'],         // кАсаясь
+                ['и', 'е', 'я'],    // поднИмалось
+                ['а', 'о'],         // гОрячее
+                ['и', 'е'],         // замЕрла
+                ['о', 'а'],         // вскОчила
+                ['и', 'Я', 'е'],    // неудЕржимыми
+                ['о', 'а'],         // вдохнОвенного
+                ['я', 'а', 'е', 'и' ],    // потрЯсения
+                ['я', 'е', 'и'],    // огИбал
+                ['е', 'и', 'я'],    // дЕржась
+                ['е', 'и', 'я'],    // лИлась
+                ['и', 'е'],         // рИтмических
+                ['а', 'о'],         // прОстоте
+                ['е', 'я', 'и'],    // лИкуя
+                ['о', 'а'],         // рОкотало
+                ['е', 'и', 'я', 'а'],    // сочЕтание
+                ['и', 'е'],    // восхИтительным
+                ['а', 'о']     // неодОлимым
+            ]
+        };
+
+        // Инициализация элементов
+        const elements = {
+            enableBtn: document.getElementById('enableBtn'),
+            checkBtn: document.getElementById('checkBtn'),
+            textPanel: document.getElementById('textPanel'),
+            textContainer: document.getElementById('textContainer'),
+            gradeBtn: document.getElementById('gradeBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            gradeResult: document.getElementById('gradeResult'),
+            statsResult: document.getElementById('statsResult'),
+            buttonsContainer: document.getElementById('buttonsContainer'),
+            nextBtn: document.getElementById('nextBtn')
+        };
+
+        let state = {
+            attempts: 0,
+            totalCorrect: 0,
+            totalQuestions: 18,
+            bestScore: 0,
+            teamScore: 0
+        };
+
+        // Функция для настройки навигации между выпадающими списками
+        function setupSelectNavigation() {
+            const selects = document.querySelectorAll('.gap-select');
+            
+            selects.forEach((select, index) => {
+                select.addEventListener('change', (e) => {
+                    if (index < selects.length - 1) {
+                        setTimeout(() => {
+                            selects[index + 1].focus();
+                        }, 10);
+                    }
+                });
+                
+                select.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        selects[index - 1].focus();
+                        e.preventDefault();
+                    } else if (e.key === 'ArrowRight' && index < selects.length - 1) {
+                        selects[index + 1].focus();
+                        e.preventDefault();
+                    }
+                });
+            });
+            
+            if (selects.length > 0) {
+                selects[0].focus();
+            }
+        }
+
+        // Создание упражнения с выпадающими списками
+        function createExercise() {
+            let html = '';
+            let gapIndex = 0;
+            let i = 0;
+            
+            while (i < exercise.text.length) {
+                if (exercise.text[i] === '_') {
+                    // Нашли пропуск - создаем выпадающий список
+                    html += `<span class="gap-container">
+                        <select class="gap-select" data-index="${gapIndex}">
+                            <option value=""></option>`; // Пустой вариант по умолчанию
+                    
+                    // Добавляем только те буквы, которые можно перепутать для данного пропуска
+                    exercise.possibleLetters[gapIndex].forEach(letter => {
+                        html += `<option value="${letter}">${letter}</option>`;
+                    });
+                    
+                    html += `</select></span>`;
+                    gapIndex++;
+                    i += 1; // Пропускаем символ подчеркивания
+                } else {
+                    // Обычный текст
+                    html += exercise.text[i];
+                    i++;
+                }
+            }
+            
+            elements.textContainer.innerHTML = html;
+            setupSelectNavigation();
+            
+            // Для отладки
+            console.log("Создано пропусков:", gapIndex);
+        }
+
+        // Проверка ответов
+        function checkAnswers() {
+            let correctCount = 0;
+            const selects = document.querySelectorAll('.gap-select');
+            
+            selects.forEach(select => {
+                const userAnswer = select.value.toLowerCase();
+                const correctAnswer = exercise.answers[parseInt(select.dataset.index)];
+                
+                select.classList.remove('correct', 'incorrect');
+                
+                if (userAnswer === correctAnswer) {
+                    select.classList.add('correct');
+                    correctCount++;
+                } else if (userAnswer) {
+                    select.classList.add('incorrect');
+                }
+            });
+            
+            return correctCount;
+        }
+
+        // Сохранение результата команды
+        function saveTeamScore(score) {
+            localStorage.setItem('team3Score', score);
+        }
+
+        // Обработчики событий
+        elements.enableBtn.addEventListener('click', () => {
+            if (elements.textContainer.innerHTML === '') {
+                createExercise();
+            }
+            elements.textPanel.style.display = 'block';
+            elements.checkBtn.style.display = 'flex';
+            elements.enableBtn.style.display = 'none';
+            elements.buttonsContainer.style.display = 'flex';
+            // Убрали отображение кнопки Далее здесь
+        });
+
+        elements.checkBtn.addEventListener('click', () => {
+            const correct = checkAnswers();
+            state.attempts++;
+            state.totalCorrect += correct;
+            state.bestScore = Math.max(state.bestScore, correct);
+            
+            if (state.attempts === 1) {
+                state.teamScore = correct;
+                saveTeamScore(correct);
+            }
+            
+            elements.gradeResult.textContent = `Правильных ответов: ${correct} из ${state.totalQuestions}`;
+            elements.statsResult.textContent = `Попыток: ${state.attempts} | Лучший: ${state.bestScore}`;
+            elements.gradeResult.style.display = 'block';
+            elements.statsResult.style.display = 'block';
+            
+            // Показываем кнопку Далее только после проверки
+            elements.nextBtn.style.display = 'block';
+        });
+
+        elements.gradeBtn.addEventListener('click', () => {
+            const correct = checkAnswers();
+            const percentage = Math.round((correct / state.totalQuestions) * 100);
+            
+            let grade = "2";
+            if (percentage >= 90) grade = "5";
+            else if (percentage >= 75) grade = "4";
+            else if (percentage >= 50) grade = "3";
+            
+            elements.gradeResult.textContent = `Оценка: ${grade} (${percentage}%)`;
+            elements.statsResult.textContent = `Правильно: ${correct} из ${state.totalQuestions}`;
+            elements.gradeResult.style.display = 'block';
+            elements.statsResult.style.display = 'block';
+            
+            // Показываем кнопку Далее только после проверки
+            elements.nextBtn.style.display = 'block';
+        });
+
+        elements.clearBtn.addEventListener('click', () => {
+            document.querySelectorAll('.gap-select').forEach(select => {
+                select.value = '';
+                select.classList.remove('correct', 'incorrect');
+            });
+            elements.gradeResult.style.display = 'none';
+            elements.statsResult.style.display = 'none';
+        });
+
+        elements.nextBtn.addEventListener('click', () => {
+            window.location.href = '4_Grin.html';
+        });
+
+        // Анимация пузырьков - только маленькие над корабликом
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            // Позиционируем пузырьки в области кораблика (69% ±10%)
+            const leftPos = 69 + (Math.random() * 20 - 10);
+            
+            bubble.style.cssText = `
+                width: ${Math.random() * 5 + 3}px;
+                height: ${Math.random() * 5 + 3}px;
+                left: ${leftPos}%;
+                animation-duration: ${Math.random() * 3 + 2}s;
+            `;
+            
+            document.getElementById('bubbles').appendChild(bubble);
+            setTimeout(() => bubble.remove(), 5000);
+        }
+        
+        // Создаем меньше пузырьков и только в области кораблика
+        setInterval(createBubble, 500);
+
+        // Защита от копирования текста
+        document.addEventListener('copy', (e) => {
+            e.preventDefault();
+            alert('Копирование текста запрещено!');
+        });
+
+        // Защита от вставки текста
+        document.addEventListener('paste', (e) => {
+            e.preventDefault();
+            alert('Вставка текста запрещена!');
+        });
+
+        // Блокировка контекстного меню
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Блокировка клавиш F12, Ctrl+Shift+I, Ctrl+Shift+J и т.д.
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase()))) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
